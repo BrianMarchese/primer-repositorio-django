@@ -1,6 +1,6 @@
 from django.http import HttpResponse
 import datetime
-from django.template import Context, Template
+from django.template import Context, Template, loader
 
 
 
@@ -32,12 +32,10 @@ def probandoHtml(self):
 
     diccionario={"nombre":nom, "apellido":ape, "lista":lista_de_notas}
 
-    plantilla=Template(mi_Archivo.read())#Leemos el archivo y lo guardamos en una variable
-    mi_Archivo.close()
+    plantilla=loader.get_template("template1.html")
 
-    contexto=Context(diccionario) #CREO UN CONTEXTO VACIO
 
-    documento=plantilla.render(contexto)
+    documento=plantilla.render(diccionario)
 
     return HttpResponse(documento)
 
