@@ -26,13 +26,18 @@ def calcula_Anio_Nacimiento(self, edad):
 def probandoHtml(self):
     mi_Archivo=open("C:/Users/Usuario/Documents/PythonCoder/Clase_17/Plantillas/template1.html")
 
+    nom="Brian"
+    ape= "Marchese"
+    lista_de_notas=[9,5,3,8,7,9,3,8]
+
+    diccionario={"nombre":nom, "apellido":ape, "lista":lista_de_notas}
+
     plantilla=Template(mi_Archivo.read())#Leemos el archivo y lo guardamos en una variable
     mi_Archivo.close()
 
-    contexto=Context() #CREO UN CONTEXTO VACIO
+    contexto=Context(diccionario) #CREO UN CONTEXTO VACIO
 
     documento=plantilla.render(contexto)
 
     return HttpResponse(documento)
-
 
