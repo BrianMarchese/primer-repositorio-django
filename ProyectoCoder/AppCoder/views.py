@@ -1,8 +1,10 @@
 from django import http
 from django.shortcuts import render
-from AppCoder.models import Curso, Profesor
+from AppCoder.models import Curso, Profesor, Estudiante
 from django.http import HttpResponse
 from AppCoder.forms import CursoForm, ProfeForm
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.urls import reverse_lazy
 
 # Create your views here.
 
@@ -84,3 +86,58 @@ def buscar(request):
         return render(request, "AppCoder/resultadosBusqueda.html", {"cursos":cursos})
     else:
         return render(request, "AppCoder/busquedaComision.html", {"error":"No se ingreso ninguna comision"})
+
+def leerprofesores(request):
+    profesores= Profesor.objects.all()
+    return render(request, "AppCoder/leerprofesores.html", {"profesores":profesores})
+
+
+def eliminarProfesor(request, nombre_profesor):
+    profe= Profesor.objects.get(nombre=nombre_profesor)
+    profe.delete()
+
+    profesores= Profesor.objects.all()
+    return render(request, "AppCoder/leerprofesores.html", {"profesores":profesores})
+
+
+def editarProfesor(request, nombre_profesor):
+    profe= Profesor.objects.get(nombre=nombre_profesor)
+    if request.method=="POST":
+        form= ProfeForm(request.POST)
+        if form.is_valid():
+            info= form.cleaned_data
+            profe.nombre= info["nombre"]
+            profe.apellido= info["apellido"]
+            profe.email= info["email"]
+            profe.profesion= info["profesion"]
+            profe.save()
+            return render(request, "AppCoder/inicio.html")
+    else:
+        form= ProfeForm(initial={"nombre":profe.nombre, "apellido":profe.apellido, "email":profe.email, "profesion":profe.profesion})
+    return render(request, "AppCoder/editarProfesor.html", {"formulario":form, "nombre_profesor":nombre_profesor})
+
+
+# VISTAS BASADAS EN CLASES
+
+class EstudianteList(ListView):
+    model= Estudiante
+    template_name= "AppCoder/estudiantes_list.html"
+
+class EstudianteDetalle(DetailView):
+    model= Estudiante
+    template_name= "AppCoder/estudiante_detalle.html"
+
+
+class EstudianteCreacion(CreateView):
+    model = Estudiante
+    success_url = reverse_lazy('estudiante_listar')
+    fields=['nombre', 'apellido', 'email']
+
+class EstudianteUpdate(UpdateView):
+    model = Estudiante
+    success_url = reverse_lazy('estudiante_listar')
+    fields=['nombre', 'apellido', 'email']
+
+class EstudianteDelete(DeleteView):
+    model= Estudiante
+    success_url= reverse_lazy('estudiante_listar')

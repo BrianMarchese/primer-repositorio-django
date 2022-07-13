@@ -4,6 +4,13 @@
 
 {% block contenido_que_cambia %}
 
-<h1>PROFES</h1>
+{% for estudiante in object_list %}
+    
+    <li>{{ estudiante }}</li>
+
+
+{% endfor %}
+
+
 
 {% endblock %}
