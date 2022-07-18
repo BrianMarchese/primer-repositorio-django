@@ -2,9 +2,11 @@ from django import http
 from django.shortcuts import render
 from AppCoder.models import Curso, Profesor, Estudiante
 from django.http import HttpResponse
-from AppCoder.forms import CursoForm, ProfeForm
+from AppCoder.forms import CursoForm, ProfeForm, UserRegisterForm
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.contrib.auth import login, logout, authenticate
 
 # Create your views here.
 
@@ -141,3 +143,40 @@ class EstudianteUpdate(UpdateView):
 class EstudianteDelete(DeleteView):
     model= Estudiante
     success_url= reverse_lazy('estudiante_listar')
+
+
+#-----------------------------------------
+def login_request(request):
+    if request.method=="POST":
+        form= AuthenticationForm(request, data=request.POST)
+        if form.is_valid:
+            usu= request.POST['username']
+            clave= request.POST['password']
+
+            usuario= authenticate(username=usu, password=clave)
+
+            if usuario is not None:
+                login(request, usuario)
+                return render(request, 'AppCoder/inicio.html', {'form':form, 'mensaje':f"Bienvenido {usuario}"})
+            else:
+                return render(request, 'AppCoder/login.html', {'form':form, 'mensaje':f"Usuario o contraseña incorrectos"})
+        else:
+            return render(request, 'AppCoder/login.html', {'form':form, 'mensaje':f"FORMULARIO INVALIDO"})
+    else:
+        form= AuthenticationForm()
+        return render(request, 'AppCoder/login.html', {'form':form})
+
+
+def register(request):
+    if request.method == 'POST':
+        form= UserRegisterForm(request.POST)
+        if form.is_valid():
+            username= form.cleaned_data["username"]
+
+            form.save()
+            return render(request, 'AppCoder/inicio.html', {'form':form, 'mensaje':f"Usuario Creado: {username}"})
+    else:
+        form= UserRegisterForm()
+    return render (request, 'AppCoder/register.html', {'form':form})
+
+
